@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#d9006c">
+  <title>De Stelling &amp; De Student</title>
+  <style>
+    :root {
+      --pink: #d9006c;
+      --pink-dark: #a90054;
+      --pink-soft: #fff0f7;
+      --ink: #24222a;
+      --muted: #696572;
+      --line: #e9e5eb;
+      --paper: #ffffff;
+      --bg: #f6f4f7;
+      --warning: #c83532;
+      --focus: #1376d3;
+      --radius: 22px;
+      --shadow: 0 12px 34px rgba(52, 32, 45, .10);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 0%, rgba(217,0,108,.11), transparent 27rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    button, input, textarea {
+      outline: none;
+    }
+
+    button:focus-visible, input:focus-visible, textarea:focus-visible {
+      box-shadow: 0 0 0 4px rgba(19,118,211,.28);
+      border-color: var(--focus) !important;
+    }
+
+    .app-shell {
+      width: min(1500px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: clamp(14px, 2vw, 28px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 16px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .utility-actions { display: flex; gap: 8px; }
+
+    .route-guide {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .route-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(255,255,255,.78);
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 750;
+    }
+
+    .route-step strong {
+      display: grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      flex: none;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--pink);
+      font-size: .8rem;
+    }
+
+    .panels {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: rgba(255,255,255,.94);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(18px, 2vw, 28px);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    h1, h2, p { margin: 0; }
+
+    h1 {
+      font-size: clamp(1.75rem, 3vw, 3rem);
+      line-height: 1;
+      letter-spacing: -.045em;
+    }
+
+    h1 span { color: var(--pink); }
+
+    .eyebrow {
+      color: var(--pink-dark);
+      font-size: .78rem;
+      font-weight: 850;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .helper { color: var(--muted); font-size: .92rem; }
+
+    .badge {
+      flex: none;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--pink-soft);
+      color: var(--pink-dark);
+      font-size: .8rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    label {
+      display: inline-block;
+      margin-bottom: 6px;
+      font-size: .84rem;
+      font-weight: 800;
+    }
+
+    textarea, input[type="number"] {
+      width: 100%;
+      border: 2px solid var(--line);
+      border-radius: 13px;
+      background: #fff;
+      color: var(--ink);
+      transition: border-color .18s, box-shadow .18s;
+    }
+
+    textarea {
+      min-height: 116px;
+      max-height: 190px;
+      resize: vertical;
+      padding: 12px 14px;
+    }
+
+    textarea::placeholder { color: #9a96a0; }
+
+    input[type="number"] {
+      height: 44px;
+      padding: 7px 10px;
+      font-weight: 750;
+    }
+
+    .input-note {
+      min-height: 1.25em;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .input-note:empty { display: none; }
+
+    .error { color: #aa2522; font-weight: 750; }
+
+    .result-card {
+      flex: 1;
+      min-height: 150px;
+      border: 2px solid #f1d5e3;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #fff 25%, var(--pink-soft));
+      padding: clamp(18px, 2.2vw, 30px);
+      display: grid;
+      place-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-card::after {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      right: -95px;
+      bottom: -95px;
+      border: 28px solid rgba(217,0,108,.10);
+      border-radius: 50%;
+    }
+
+    .statement-result {
+      position: relative;
+      z-index: 1;
+      max-width: 28ch;
+      font-size: clamp(1.25rem, 2.25vw, 2.15rem);
+      font-weight: 850;
+      line-height: 1.2;
+      letter-spacing: -.025em;
+      overflow-wrap: anywhere;
+    }
+
+    .statement-result.placeholder {
+      color: #837d88;
+      font-size: clamp(1rem, 1.5vw, 1.2rem);
+      font-weight: 650;
+    }
+
+    .debate-coach {
+      border-left: 4px solid var(--pink);
+      padding: 10px 13px;
+      background: var(--pink-soft);
+      color: var(--ink);
+      font-size: .92rem;
+    }
+
+    .debate-coach strong { display: block; margin-bottom: 2px; }
+    .debate-coach[hidden] { display: none; }
+
+    .statement-result.shuffle { animation: shuffle .12s ease-in-out infinite alternate; }
+    .statement-result.reveal { animation: reveal .45s cubic-bezier(.2,.8,.2,1); }
+
+    .primary, .secondary, .icon-button {
+      border: 0;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 850;
+      transition: transform .14s, background .14s, opacity .14s, box-shadow .14s;
+    }
+
+    .primary {
+      min-height: 49px;
+      padding: 11px 18px;
+      color: #fff;
+      background: var(--pink);
+      box-shadow: 0 7px 17px rgba(217,0,108,.24);
+    }
+
+    .primary:hover:not(:disabled) { background: var(--pink-dark); transform: translateY(-1px); }
+    .primary:active:not(:disabled) { transform: translateY(1px); }
+    .primary:disabled { cursor: wait; opacity: .55; }
+
+    .secondary, .icon-button {
+      min-height: 40px;
+      padding: 8px 12px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+
+    .secondary:hover, .icon-button:hover { background: #f2eef2; }
+    .icon-button { display: inline-flex; align-items: center; gap: 7px; }
+
+    .student-settings {
+      display: grid;
+      grid-template-columns: minmax(145px, 210px) auto;
+      justify-content: space-between;
+      align-items: end;
+      gap: 12px;
+    }
+
+    .wheel-area {
+      flex: 1;
+      min-height: 265px;
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(125px, .55fr);
+      align-items: center;
+      gap: clamp(10px, 2vw, 25px);
+    }
+
+    .wheel-wrap {
+      width: min(100%, 330px);
+      aspect-ratio: 1;
+      position: relative;
+      justify-self: center;
+      filter: drop-shadow(0 12px 14px rgba(54,31,44,.13));
+    }
+
+    #wheel { display: block; width: 100%; height: 100%; }
+
+    .pointer {
+      position: absolute;
+      z-index: 2;
+      top: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 31px solid var(--ink);
+      filter: drop-shadow(0 3px 2px rgba(0,0,0,.2));
+    }
+
+    .student-result-box { text-align: center; }
+    .student-result-box .label { color: var(--muted); font-size: .82rem; font-weight: 750; }
+    .student-number {
+      min-height: 1.15em;
+      color: var(--pink);
+      font-size: clamp(4.25rem, 10vw, 8rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -.08em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .student-number.pop { animation: numberPop .5s cubic-bezier(.2,.9,.25,1.25); }
+
+    .timer-bar {
+      background: var(--ink);
+      color: #fff;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 12px clamp(14px, 2vw, 22px);
+      display: grid;
+      grid-template-columns: auto auto 1fr auto;
+      align-items: center;
+      gap: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-title { font-weight: 850; }
+
+    .time-inputs { display: flex; align-items: end; gap: 6px; }
+    .time-inputs label { margin: 0; color: #d8d4db; font-size: .7rem; }
+    .time-inputs input {
+      width: 62px;
+      height: 39px;
+      border: 1px solid #625d67;
+      color: #fff;
+      background: #37333b;
+      padding: 6px 8px;
+    }
+
+    .colon { padding-bottom: 8px; font-weight: 900; }
+
+    .timer-display {
+      text-align: center;
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: .03em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-controls { display: flex; gap: 7px; }
+    .timer-controls .secondary { min-height: 39px; border-color: #625d67; color: #fff; background: #37333b; }
+    .timer-controls .secondary:hover { background: #4a454f; }
+    .timer-controls .timer-start { color: #fff; background: var(--pink); border-color: var(--pink); }
+
+    .timer-bar.urgent .timer-display { color: #ff817d; animation: pulse .72s ease-in-out infinite; }
+    .timer-bar.finished { background: #7d1e27; }
+
+    .time-up {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: grid;
+      place-items: center;
+      background: rgba(125,30,39,.96);
+      font-size: clamp(1.45rem, 3vw, 2.4rem);
+      font-weight: 900;
+      letter-spacing: .02em;
+      animation: reveal .3s ease-out;
+    }
+
+    .time-up[hidden] { display: none; }
+
+    @keyframes shuffle { from { transform: translateX(-3px); opacity: .5; } to { transform: translateX(3px); opacity: 1; } }
+    @keyframes reveal { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+    @keyframes numberPop { 0% { transform: scale(.72); opacity: .25; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes pulse { 50% { transform: scale(1.055); } }
+
+    @media (max-width: 880px) {
+      .panels { grid-template-columns: 1fr; }
+      .timer-bar { grid-template-columns: auto 1fr auto; }
+      .timer-title { display: none; }
+    }
+
+    @media (max-width: 570px) {
+      .app-shell { padding: 10px; gap: 10px; }
+      .panel { padding: 16px; border-radius: 17px; }
+      .wheel-area { grid-template-columns: 1fr; }
+      .wheel-wrap { width: min(77vw, 285px); }
+      .student-result-box { display: flex; justify-content: center; align-items: baseline; gap: 12px; }
+      .student-number { font-size: 4.5rem; }
+      .timer-bar { grid-template-columns: 1fr auto; gap: 10px; }
+      .time-inputs { grid-column: 1; grid-row: 1; }
+      .timer-display { grid-column: 2; grid-row: 1; }
+      .timer-controls { grid-column: 1 / -1; justify-content: stretch; }
+      .timer-controls button { flex: 1; }
+      .topbar { align-items: flex-start; }
+      .icon-button .sound-text { display: none; }
+      .route-guide { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="utility-actions">
+        <button class="icon-button" id="soundToggle" type="button" aria-pressed="true" title="Geluid uitschakelen">
+          <span id="soundIcon" aria-hidden="true">🔊</span><span class="sound-text">Geluid aan</span>
+        </button>
+        <button class="icon-button" id="clearAll" type="button" title="Alle opgeslagen gegevens wissen">Alles wissen</button>
+      </div>
+    </header>
+
+    <section class="route-guide" aria-label="Debatroute">
+      <div class="route-step"><strong>1</strong><span>Kies een stelling</span></div>
+      <div class="route-step"><strong>2</strong><span>Loot wie begint</span></div>
+      <div class="route-step"><strong>3</strong><span>Geef denktijd</span></div>
+    </section>
+
+    <section class="panels" aria-label="Stelling en student kiezen">
+      <article class="panel" aria-labelledby="statementTitle">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Kies het onderwerp</p>
+            <h1 id="statementTitle">De <span>Stelling</span></h1>
+          </div>
+          <span class="badge" id="statementCount">0 stellingen</span>
+        </div>
+
+        <div>
+          <label for="statements">Plak hier de stellingen</label>
+          <textarea id="statements" spellcheck="true" placeholder="1. Festivals moeten volledig alcoholvrij worden.&#10;2. AI maakt evenementen persoonlijker én beter.&#10;• Een evenement hoeft niet duurzaam te zijn als bezoekers dat niet belangrijk vinden."></textarea>
+          <p class="input-note" id="statementNote" aria-live="polite"></p>
+        </div>
+
+        <div class="result-card" aria-label="Gekozen stelling">
+          <p class="statement-result placeholder" id="statementResult" aria-live="polite">De gekozen stelling verschijnt hier.</p>
+        </div>
+
+        <div class="debate-coach" id="debateCoach" role="status" hidden>
+          <strong>Startprompt</strong>
+          <span id="debateCoachText">Formuleer je standpunt, één argument en een concreet voorbeeld.</span>
+        </div>
+
+        <button class="primary" id="pickStatement" type="button">Kies een stelling</button>
+      </article>
+
+      <article class="panel" aria-labelledby="studentTitle">
+        <div class="panel-header">
+          <div>
+            <p class="eyebrow">Kies wie er begint</p>
+            <h1 id="studentTitle">De <span>Student</span></h1>
+          </div>
+        </div>
+
+        <div class="student-settings">
+          <div>
+            <label for="studentCount">Aantal studenten</label>
+            <input id="studentCount" type="number" min="1" max="60" step="1" inputmode="numeric" value="20">
+            <p class="input-note" id="studentNote" aria-live="polite"></p>
+          </div>
+          <div>
+            <button class="primary" id="spinWheel" type="button">Draai het rad</button>
+            <button class="secondary" id="resetStudents" type="button">Nieuwe ronde</button>
+          </div>
+        </div>
+
+        <div class="wheel-area">
+          <div class="wheel-wrap">
+            <span class="pointer" aria-hidden="true"></span>
+            <canvas id="wheel" width="640" height="640" role="img" aria-label="Rad met studentnummers 1 tot en met 20"></canvas>
+          </div>
+          <div class="student-result-box" aria-live="polite" aria-atomic="true">
+            <p class="label">Gekozen student</p>
+            <p class="student-number" id="studentResult">—</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="timer-bar" id="timerBar" aria-labelledby="timerTitle">
+      <p class="timer-title" id="timerTitle">Denk- en kiestijd</p>
+      <div class="time-inputs" aria-label="Timer instellen">
+        <div>
+          <label for="timerMinutes">MIN</label>
+          <input id="timerMinutes" type="number" min="0" max="99" step="1" inputmode="numeric" value="1">
+        </div>
+        <span class="colon" aria-hidden="true">:</span>
+        <div>
+          <label for="timerSeconds">SEC</label>
+          <input id="timerSeconds" type="number" min="0" max="59" step="1" inputmode="numeric" value="0">
+        </div>
+      </div>
+      <div class="timer-display" id="timerDisplay" role="timer" aria-live="off">01:00</div>
+      <div class="timer-controls">
+        <button class="secondary timer-start" id="timerStart" type="button">Start</button>
+        <button class="secondary" id="timerPause" type="button" disabled>Pauze</button>
+        <button class="secondary" id="timerReset" type="button">Reset</button>
+      </div>
+      <div class="time-up" id="timeUp" role="alert" hidden>Tijd is om!</div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'stelling-student-app-v1';
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        statements: $('statements'), statementCount: $('statementCount'), statementNote: $('statementNote'),
+        statementResult: $('statementResult'), pickStatement: $('pickStatement'), debateCoach: $('debateCoach'),
+        debateCoachText: $('debateCoachText'), studentCount: $('studentCount'), studentNote: $('studentNote'),
+        spinWheel: $('spinWheel'), resetStudents: $('resetStudents'), wheel: $('wheel'), studentResult: $('studentResult'),
+        soundToggle: $('soundToggle'), soundIcon: $('soundIcon'), clearAll: $('clearAll'),
+        timerBar: $('timerBar'), timerMinutes: $('timerMinutes'), timerSeconds: $('timerSeconds'),
+        timerDisplay: $('timerDisplay'), timerStart: $('timerStart'), timerPause: $('timerPause'),
+        timerReset: $('timerReset'), timeUp: $('timeUp')
+      };
+
+      let statements = [];
+      let studentCount = 20;
+      let rotation = 0;
+      let wheelAnimating = false;
+      const MAX_TURNS_PER_STUDENT = 2;
+      let studentDrawCounts = new Map();
+      let audioContext = null;
+      let soundEnabled = true;
+      let timerId = null;
+      let timerRunning = false;
+      let timerRemainingMs = 60000;
+      let timerEndAt = 0;
+
+      // Verwijder gangbare nummers en bullets aan het begin van elke regel.
+      function parseStatements(value) {
+        const seen = new Set();
+        return value.split(/\r?\n/).map(line => line
+          .replace(/^\s*(?:(?:\d+)\s*(?:[.)]|[-–—])|[-*•▪◦‣])\s*/, '')
+          .replace(/\s+/g, ' ').trim())
+          .filter(line => {
+            if (!line) return false;
+            const key = line.toLocaleLowerCase('nl-NL');
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+      }
+
+      function secureRandomInt(max) {
+        if (max <= 0) return 0;
+        if (window.crypto && window.crypto.getRandomValues) {
+          const limit = Math.floor(0x100000000 / max) * max;
+          const data = new Uint32Array(1);
+          do { window.crypto.getRandomValues(data); } while (data[0] >= limit);
+          return data[0] % max;
+        }
+        return Math.floor(Math.random() * max);
+      }
+
+      function saveSettings() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            statements: els.statements.value,
+            studentCount,
+            minutes: clampInt(els.timerMinutes.value, 0, 99, 1),
+            seconds: clampInt(els.timerSeconds.value, 0, 59, 0),
+            soundEnabled
+          }));
+        } catch (_) { /* De app blijft bruikbaar wanneer opslag is geblokkeerd. */ }
+      }
+
+      function loadSettings() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          if (!saved) return;
+          els.statements.value = typeof saved.statements === 'string' ? saved.statements : '';
+          els.studentCount.value = clampInt(saved.studentCount, 1, 60, 20);
+          els.timerMinutes.value = clampInt(saved.minutes, 0, 99, 1);
+          els.timerSeconds.value = clampInt(saved.seconds, 0, 59, 0);
+          soundEnabled = saved.soundEnabled !== false;
+        } catch (_) { /* Ongeldige opslag wordt genegeerd. */ }
+      }
+
+      function clampInt(value, min, max, fallback) {
+        const parsed = Number.parseInt(value, 10);
+        return Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : fallback;
+      }
+
+      function updateStatementList() {
+        statements = parseStatements(els.statements.value);
+        const count = statements.length;
+        els.statementCount.textContent = `${count} ${count === 1 ? 'stelling' : 'stellingen'}`;
+        els.statementNote.textContent = '';
+        els.statementNote.classList.remove('error');
+        saveSettings();
+      }
+
+      async function pickStatement() {
+        updateStatementList();
+        if (!statements.length) {
+          els.statementNote.textContent = 'Voer eerst minimaal één stelling in.';
+          els.statementNote.classList.add('error');
+          els.statements.focus();
+          return;
+        }
+
+        els.pickStatement.disabled = true;
+        els.statementResult.classList.remove('placeholder', 'reveal');
+        els.statementResult.classList.add('shuffle');
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const duration = reduceMotion ? 60 : 760;
+        const started = performance.now();
+        await new Promise(resolve => {
+          const interval = setInterval(() => {
+            els.statementResult.textContent = statements[secureRandomInt(statements.length)];
+            if (performance.now() - started >= duration) { clearInterval(interval); resolve(); }
+          }, reduceMotion ? 50 : 90);
+        });
+        els.statementResult.textContent = statements[secureRandomInt(statements.length)];
+        els.statementResult.classList.remove('shuffle');
+        void els.statementResult.offsetWidth;
+        els.statementResult.classList.add('reveal');
+        els.debateCoach.hidden = false;
+        els.pickStatement.disabled = false;
+      }
+
+      function validateStudentCount() {
+        const raw = Number(els.studentCount.value);
+        if (!Number.isInteger(raw) || raw < 1 || raw > 60) {
+          els.studentNote.textContent = 'Vul een heel getal van 1 tot en met 60 in.';
+          els.studentNote.classList.add('error');
+          return false;
+        }
+        if (studentCount !== raw) studentDrawCounts.clear();
+        studentCount = raw;
+        els.studentNote.textContent = '';
+        els.studentNote.classList.remove('error');
+        els.wheel.setAttribute('aria-label', `Rad met studentnummers 1 tot en met ${studentCount}`);
+        drawWheel(rotation);
+        updateStudentProgress();
+        saveSettings();
+        return true;
+      }
+
+      function updateStudentProgress() {
+        const totalTurns = studentCount * MAX_TURNS_PER_STUDENT;
+        const usedTurns = Array.from(studentDrawCounts.values()).reduce((sum, count) => sum + count, 0);
+        els.spinWheel.disabled = wheelAnimating || usedTurns >= totalTurns;
+      }
+
+      function resetStudents() {
+        studentDrawCounts.clear();
+        els.studentResult.textContent = '—';
+        els.studentResult.classList.remove('pop');
+        updateStudentProgress();
+      }
+
+      function drawWheel(angle = 0) {
+        const canvas = els.wheel;
+        const rect = canvas.getBoundingClientRect();
+        const cssSize = Math.max(220, Math.round(Math.min(rect.width || 320, rect.height || rect.width || 320)));
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const px = Math.round(cssSize * dpr);
+        if (canvas.width !== px || canvas.height !== px) { canvas.width = px; canvas.height = px; }
+        const ctx = canvas.getContext('2d');
+        const size = canvas.width;
+        const center = size / 2;
+        const radius = size * .465;
+        const slice = Math.PI * 2 / studentCount;
+        const palette = ['#d9006c', '#2e2932', '#f05499', '#605967', '#aa0055', '#8d8492'];
+
+        ctx.clearRect(0, 0, size, size);
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(angle);
+
+        for (let i = 0; i < studentCount; i++) {
+          const start = -Math.PI / 2 - slice / 2 + i * slice;
+          const end = start + slice;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, radius, start, end);
+          ctx.closePath();
+          ctx.fillStyle = palette[i % palette.length];
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,255,255,.78)';
+          ctx.lineWidth = Math.max(1, size * .003);
+          ctx.stroke();
+
+          const middle = start + slice / 2;
+          ctx.save();
+          ctx.rotate(middle);
+          ctx.translate(radius * (studentCount > 30 ? .78 : .72), 0);
+          ctx.rotate(Math.PI / 2);
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const fontSize = Math.max(size * .025, Math.min(size * .07, size * 1.42 / studentCount));
+          ctx.font = `800 ${fontSize}px system-ui, sans-serif`;
+          ctx.fillText(String(i + 1), 0, 0);
+          ctx.restore();
+        }
+
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * .13, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+        ctx.lineWidth = size * .012;
+        ctx.strokeStyle = '#24222a';
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function ensureAudio() {
+        if (!soundEnabled) return null;
+        try {
+          if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioContext.state === 'suspended') audioContext.resume();
+          return audioContext;
+        } catch (_) { return null; }
+      }
+
+      function playTone(frequency = 520, duration = .045, volume = .035, type = 'sine', delay = 0) {
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const start = ctx.currentTime + delay;
+        osc.type = type;
+        osc.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(volume, start);
+        gain.gain.exponentialRampToValueAtTime(.0001, start + duration);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(start);
+        osc.stop(start + duration);
+      }
+
+      async function spinWheel() {
+        if (wheelAnimating || !validateStudentCount()) return;
+        const allStudents = Array.from({ length: studentCount }, (_, index) => index);
+        const firstTurns = allStudents.filter(index => !studentDrawCounts.has(index));
+        const remaining = firstTurns.length
+          ? firstTurns
+          : allStudents.filter(index => (studentDrawCounts.get(index) || 0) < MAX_TURNS_PER_STUDENT);
+        if (!remaining.length) { updateStudentProgress(); return; }
+        wheelAnimating = true;
+        els.spinWheel.disabled = true;
+        els.studentCount.disabled = true;
+        els.studentResult.textContent = '…';
+        els.studentResult.classList.remove('pop');
+
+        const selectedIndex = remaining[secureRandomInt(remaining.length)];
+        const slice = Math.PI * 2 / studentCount;
+        const currentMod = ((rotation % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2);
+        const targetMod = ((-selectedIndex * slice) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+        let delta = targetMod - currentMod;
+        if (delta < 0) delta += Math.PI * 2;
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const turns = reduceMotion ? 0 : 5 + secureRandomInt(3);
+        const target = rotation + delta + turns * Math.PI * 2;
+        const duration = reduceMotion ? 120 : 3900;
+        const startRotation = rotation;
+        const started = performance.now();
+        let lastTick = 0;
+
+        await new Promise(resolve => {
+          function frame(now) {
+            const t = Math.min(1, (now - started) / duration);
+            const eased = 1 - Math.pow(1 - t, 4);
+            rotation = startRotation + (target - startRotation) * eased;
+            drawWheel(rotation);
+            if (!reduceMotion && now - lastTick > 58 + t * 150) {
+              playTone(760 - t * 280, .035, .025, 'square');
+              lastTick = now;
+            }
+            if (t < 1) requestAnimationFrame(frame); else resolve();
+          }
+          requestAnimationFrame(frame);
+        });
+
+        rotation = target;
+        drawWheel(rotation);
+        els.studentResult.textContent = String(selectedIndex + 1);
+        studentDrawCounts.set(selectedIndex, (studentDrawCounts.get(selectedIndex) || 0) + 1);
+        updateStudentProgress();
+        void els.studentResult.offsetWidth;
+        els.studentResult.classList.add('pop');
+        playTone(540, .12, .055, 'sine');
+        playTone(780, .2, .045, 'sine', .10);
+        els.studentCount.disabled = false;
+        wheelAnimating = false;
+      }
+
+      function updateSoundButton() {
+        els.soundToggle.setAttribute('aria-pressed', String(soundEnabled));
+        els.soundToggle.title = soundEnabled ? 'Geluid uitschakelen' : 'Geluid inschakelen';
+        els.soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+        els.soundToggle.querySelector('.sound-text').textContent = soundEnabled ? 'Geluid aan' : 'Geluid uit';
+      }
+
+      function configuredTimerMs() {
+        const minutes = clampInt(els.timerMinutes.value, 0, 99, 0);
+        const seconds = clampInt(els.timerSeconds.value, 0, 59, 0);
+        els.timerMinutes.value = minutes;
+        els.timerSeconds.value = seconds;
+        return (minutes * 60 + seconds) * 1000;
+      }
+
+      function formatTime(ms) {
+        const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }
+
+      function renderTimer() {
+        els.timerDisplay.textContent = formatTime(timerRemainingMs);
+        els.timerBar.classList.toggle('urgent', timerRunning && timerRemainingMs > 0 && timerRemainingMs <= 10000);
+      }
+
+      function tickTimer() {
+        timerRemainingMs = Math.max(0, timerEndAt - Date.now());
+        renderTimer();
+        if (timerRemainingMs <= 0) finishTimer();
+      }
+
+      function startTimer() {
+        els.timeUp.hidden = true;
+        els.timerBar.classList.remove('finished');
+        if (timerRunning) return;
+        if (timerRemainingMs <= 0) timerRemainingMs = configuredTimerMs();
+        if (timerRemainingMs <= 0) {
+          els.timerDisplay.textContent = '00:00';
+          els.timerMinutes.focus();
+          return;
+        }
+        timerRunning = true;
+        timerEndAt = Date.now() + timerRemainingMs;
+        timerId = window.setInterval(tickTimer, 100);
+        els.timerStart.textContent = 'Loopt…';
+        els.timerStart.disabled = true;
+        els.timerPause.disabled = false;
+        els.timerMinutes.disabled = true;
+        els.timerSeconds.disabled = true;
+        tickTimer();
+      }
+
+      function pauseTimer() {
+        if (!timerRunning) return;
+        timerRemainingMs = Math.max(0, timerEndAt - Date.now());
+        clearInterval(timerId);
+        timerId = null;
+        timerRunning = false;
+        els.timerStart.textContent = 'Hervat';
+        els.timerStart.disabled = false;
+        els.timerPause.disabled = true;
+        els.timerMinutes.disabled = false;
+        els.timerSeconds.disabled = false;
+        renderTimer();
+      }
+
+      function resetTimer() {
+        clearInterval(timerId);
+        timerId = null;
+        timerRunning = false;
+        timerRemainingMs = configuredTimerMs();
+        els.timerStart.textContent = 'Start';
+        els.timerStart.disabled = false;
+        els.timerPause.disabled = true;
+        els.timerMinutes.disabled = false;
+        els.timerSeconds.disabled = false;
+        els.timeUp.hidden = true;
+        els.timerBar.classList.remove('urgent', 'finished');
+        renderTimer();
+        saveSettings();
+      }
+
+      function finishTimer() {
+        clearInterval(timerId);
+        timerId = null;
+        timerRunning = false;
+        timerRemainingMs = 0;
+        els.timerStart.textContent = 'Opnieuw';
+        els.timerStart.disabled = false;
+        els.timerPause.disabled = true;
+        els.timerMinutes.disabled = false;
+        els.timerSeconds.disabled = false;
+        els.timerBar.classList.remove('urgent');
+        els.timerBar.classList.add('finished');
+        els.timeUp.hidden = false;
+        renderTimer();
+        playTone(620, .25, .075, 'square');
+        playTone(620, .25, .075, 'square', .34);
+        playTone(820, .42, .08, 'square', .68);
+        window.setTimeout(() => { els.timeUp.hidden = true; }, 2600);
+      }
+
+      function onTimerInput() {
+        if (timerRunning) return;
+        timerRemainingMs = configuredTimerMs();
+        els.timeUp.hidden = true;
+        els.timerBar.classList.remove('finished');
+        els.timerStart.textContent = 'Start';
+        renderTimer();
+        saveSettings();
+      }
+
+      function clearAll() {
+        if (!window.confirm('Alle stellingen en instellingen wissen? Dit kan niet ongedaan worden gemaakt.')) return;
+        try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+        els.statements.value = '';
+        els.studentCount.value = 20;
+        els.timerMinutes.value = 1;
+        els.timerSeconds.value = 0;
+        soundEnabled = true;
+        rotation = 0;
+        els.statementResult.textContent = 'De gekozen stelling verschijnt hier.';
+        els.statementResult.className = 'statement-result placeholder';
+        els.studentResult.textContent = '—';
+        studentDrawCounts.clear();
+        updateSoundButton();
+        updateStatementList();
+        validateStudentCount();
+        resetTimer();
+      }
+
+      els.statements.addEventListener('input', updateStatementList);
+      els.pickStatement.addEventListener('click', pickStatement);
+      els.studentCount.addEventListener('input', validateStudentCount);
+      els.studentCount.addEventListener('blur', () => {
+        if (!validateStudentCount()) { els.studentCount.value = studentCount; validateStudentCount(); }
+      });
+      els.spinWheel.addEventListener('click', spinWheel);
+      els.resetStudents.addEventListener('click', resetStudents);
+      els.soundToggle.addEventListener('click', () => { soundEnabled = !soundEnabled; updateSoundButton(); saveSettings(); });
+      els.clearAll.addEventListener('click', clearAll);
+      els.timerStart.addEventListener('click', startTimer);
+      els.timerPause.addEventListener('click', pauseTimer);
+      els.timerReset.addEventListener('click', resetTimer);
+      els.timerMinutes.addEventListener('input', onTimerInput);
+      els.timerSeconds.addEventListener('input', onTimerInput);
+      window.addEventListener('resize', () => drawWheel(rotation));
+
+      loadSettings();
+      updateSoundButton();
+      updateStatementList();
+      validateStudentCount();
+      updateStudentProgress();
+      timerRemainingMs = configuredTimerMs();
+      renderTimer();
+      requestAnimationFrame(() => drawWheel(rotation));
+    })();
+  </script>
+</body>
+</html>
+
